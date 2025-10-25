@@ -15,19 +15,18 @@ def get_month_data(month_name):
 
     df = df.fillna("")  # Replace empty cells
     # Find the row that matches the month
-    month_row = df[df['Month'].str.strip().str.upper() == month_name.upper()]
-    if month_row.empty:
-        return {"error": "No data found for this month"}
+   month_row = df[df['MONTH'].str.strip().str.upper() == month_name.upper()]
 
-    row = month_row.iloc[0]
-    return {
-        "Month": row["Month"],
-        "Paid": row["Paid"],
-        "Days in Month": row["Days in Month"],
-        "Days Absent": row["Days Absent"],
-        "Days Coming": row["Days Coming"],
-        "Amount": row["Amount"]
-    }
+row = month_row.iloc[0]
+return {
+    "Month": row["MONTH"],
+    "Paid": row["PAID"],
+    "Days in Month": row["NO. OF DAYS IN MONTH"],
+    "Days Absent": row["NO. OF DAYS ABSENT"],
+    "Days Coming": row["NO. OF DAYS COMING"],
+    "Amount": row["AMOUNT"]
+}
+
 
 @app.route("/")
 def index():
@@ -40,6 +39,7 @@ def month_data(month_name):
 if __name__ == "__main__":
     # Use host 0.0.0.0 for deployment platforms like Render
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 

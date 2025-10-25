@@ -52,7 +52,7 @@
         /* ====== Output Card ====== */
         #output {
             background: white;
-            max-width: 400px;
+            max-width: 420px;
             margin: 0 auto;
             border-radius: 20px;
             padding: 25px;
@@ -91,7 +91,14 @@
             margin-top: 50px;
             color: #2c3e50;
             font-weight: bold;
-            opacity: 0.8;
+            opacity: 0.85;
+        }
+
+        .credit {
+            font-size: 14px;
+            color: #34495e;
+            margin-top: 6px;
+            opacity: 0.7;
         }
 
     </style>
@@ -113,7 +120,10 @@
 
     <div id="output">Click a month to view milk data.</div>
 
-    <footer>Powered by Flask & Google Sheets ✨</footer>
+    <footer>
+        Powered by Flask & Google Sheets ✨
+        <div class="credit">Made by Farhan</div>
+    </footer>
 
     <script>
         function getData(month) {

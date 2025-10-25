@@ -6,7 +6,8 @@ from openpyxl import load_workbook
 app = Flask(__name__)
 
 # 🔹 Replace with your OneDrive direct download link
-EXCEL_URL = "https://onedrive.live.com/download?resid=11FE308CD3290E40%21123"  # example format
+EXCEL_URL = "https://onedrive.live.com/download?resid=11FE308CD3290E40/IQSxIFf7Fl0CTY6XKxciStPoAflVanrHAEW_aVs5SMSkygM&download=1
+"  # example format
 
 def get_month_data(month_name):
     try:
@@ -49,3 +50,4 @@ def month_data(month_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+

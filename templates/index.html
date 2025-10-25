@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Milk Data Viewer</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 40px; }
+        button { margin: 5px; padding: 10px 15px; border-radius: 10px; }
+        #output { margin-top: 30px; font-size: 18px; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Milk Data Month-wise</h1>
+
+    <div id="buttons">
+        <script>
+            const months = [
+                "January","February","March","April","May","June",
+                "July","August","September","October","November","December"
+            ];
+            months.forEach(m => {
+                document.write(`<button onclick="getData('${m}')">${m}</button>`);
+            });
+        </script>
+    </div>
+
+    <div id="output">Click any month to view milk data.</div>
+
+    <script>
+        function getData(month) {
+            fetch(`/month/${month}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("output").innerHTML = `<b>${data.error}</b>`;
+                } else {
+                    document.getElementById("output").innerHTML = `
+                        <h2>${data.Month}</h2>
+                        <p><b>Paid:</b> ${data.Paid}</p>
+                        <p><b>No. of Days in Month:</b> ${data["Days in Month"]}</p>
+                        <p><b>No. of Days Absent:</b> ${data["Days Absent"]}</p>
+                        <p><b>No. of Days Coming:</b> ${data["Days Coming"]}</p>
+                        <p><b>Amount:</b> ₹${data.Amount}</p>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

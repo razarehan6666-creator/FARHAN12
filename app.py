@@ -1,40 +1,33 @@
 from flask import Flask, render_template, jsonify
-import requests
-from io import BytesIO
-from openpyxl import load_workbook
+import pandas as pd
 
 app = Flask(__name__)
 
-# 🔹 Replace with your OneDrive direct download link
-EXCEL_URL = "https://onedrive.live.com/download?resid=11FE308CD3290E40/IQSxIFf7Fl0CTY6XKxciStPoAflVanrHAEW_aVs5SMSkygM&download=1"
-  # example format
+# Replace this with your Google Sheets CSV link
+EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/gviz/tq?tqx=out:csv&sheet=milk_data"
+
 
 def get_month_data(month_name):
     try:
-        r = requests.get(EXCEL_URL)
-        r.raise_for_status()  # check for download errors
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Cannot fetch Excel file: {e}"}
+        df = pd.read_csv(EXCEL_URL)
+    except Exception as e:
+        return {"error": f"Cannot fetch Google Sheet: {e}"}
 
-    file_stream = BytesIO(r.content)
-    wb = load_workbook(file_stream)
-    sheet = wb.active
+    df = df.fillna("")  # Replace empty cells
+    # Find the row that matches the month
+    month_row = df[df['Month'].str.strip().str.upper() == month_name.upper()]
+    if month_row.empty:
+        return {"error": "No data found for this month"}
 
-    data = {}
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        month, paid, days_in_month, days_absent, days_coming, amount = row[:6]
-        if month and month.strip().upper() == month_name.upper():
-            data = {
-                "Month": month,
-                "Paid": paid,
-                "Days in Month": days_in_month,
-                "Days Absent": days_absent,
-                "Days Coming": days_coming,
-                "Amount": amount
-            }
-            break
-    wb.close()
-    return data
+    row = month_row.iloc[0]
+    return {
+        "Month": row["Month"],
+        "Paid": row["Paid"],
+        "Days in Month": row["Days in Month"],
+        "Days Absent": row["Days Absent"],
+        "Days Coming": row["Days Coming"],
+        "Amount": row["Amount"]
+    }
 
 @app.route("/")
 def index():
@@ -42,13 +35,12 @@ def index():
 
 @app.route("/month/<month_name>")
 def month_data(month_name):
-    data = get_month_data(month_name)
-    if data:
-        return jsonify(data)
-    else:
-        return jsonify({"error": "No data found for this month"})
+    return jsonify(get_month_data(month_name))
 
 if __name__ == "__main__":
+    # Use host 0.0.0.0 for deployment platforms like Render
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
 
 

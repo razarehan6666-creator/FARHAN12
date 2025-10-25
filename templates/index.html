@@ -4,13 +4,100 @@
     <meta charset="UTF-8">
     <title>Milk Data Viewer</title>
     <style>
-        body { font-family: Arial; text-align: center; margin-top: 40px; }
-        button { margin: 5px; padding: 10px 15px; border-radius: 10px; }
-        #output { margin-top: 30px; font-size: 18px; color: #333; }
+        /* ====== Overall Page Style ====== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            background: linear-gradient(135deg, #f8b500, #fceabb);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px #ffffff66;
+        }
+
+        /* ====== Month Buttons ====== */
+        #buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3498db, #1abc9c);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #16a085, #2980b9);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        /* ====== Output Card ====== */
+        #output {
+            background: white;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            color: #333;
+            font-size: 17px;
+            line-height: 1.6;
+            transition: all 0.4s ease;
+        }
+
+        #output h2 {
+            background: linear-gradient(135deg, #e67e22, #f1c40f);
+            color: white;
+            padding: 10px 0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .field {
+            margin: 8px 0;
+        }
+
+        /* ====== Fade-in Animation ====== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #output.show {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        /* ====== Footer ====== */
+        footer {
+            margin-top: 50px;
+            color: #2c3e50;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Milk Data Month-wise</h1>
+    <h1>🥛 Milk Data Month-wise</h1>
 
     <div id="buttons">
         <script>
@@ -24,27 +111,33 @@
         </script>
     </div>
 
-    <div id="output">Click any month to view milk data.</div>
+    <div id="output">Click a month to view milk data.</div>
+
+    <footer>Powered by Flask & Google Sheets ✨</footer>
 
     <script>
         function getData(month) {
             fetch(`/month/${month}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById("output").innerHTML = `<b>${data.error}</b>`;
-                } else {
-                    document.getElementById("output").innerHTML = `
+                .then(res => res.json())
+                .then(data => {
+                    const out = document.getElementById("output");
+                    if (data.error) {
+                        out.innerHTML = `<b style='color:red;'>${data.error}</b>`;
+                        return;
+                    }
+                    out.innerHTML = `
                         <h2>${data.Month}</h2>
-                        <p><b>Paid:</b> ${data.Paid}</p>
-                        <p><b>No. of Days in Month:</b> ${data["Days in Month"]}</p>
-                        <p><b>No. of Days Absent:</b> ${data["Days Absent"]}</p>
-                        <p><b>No. of Days Coming:</b> ${data["Days Coming"]}</p>
-                        <p><b>Amount:</b> ₹${data.Amount}</p>
+                        <div class="field"><b>Paid:</b> ${data.Paid}</div>
+                        <div class="field"><b>No. of Days in Month:</b> ${data["Days in Month"]}</div>
+                        <div class="field"><b>No. of Days Absent:</b> ${data["Days Absent"]}</div>
+                        <div class="field"><b>No. of Days Coming:</b> ${data["Days Coming"]}</div>
+                        <div class="field"><b>Amount:</b> ₹${data.Amount}</div>
+                        <div class="field"><b>Payment Mode:</b> ${data["Payment Mode"]}</div>
                     `;
-                }
-            });
+                    out.classList.add("show");
+                });
         }
     </script>
 </body>
 </html>
+

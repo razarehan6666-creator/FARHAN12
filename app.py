@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Replace this with your Google Sheets CSV link
-EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/gviz/tq?tqx=out:csv&sheet=milk_data"
+EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/pub?output=csv"
 
 
 def get_month_data(month_name):
@@ -40,6 +40,7 @@ def month_data(month_name):
 if __name__ == "__main__":
     # Use host 0.0.0.0 for deployment platforms like Render
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 

@@ -57,7 +57,7 @@ def get_month_data(month_name):
         "Days in Month": row.get("NO. OF DAYS IN MONTH", ""),
         "Days Absent": row.get("NO. OF DAYS ABSENT", ""),
         "Days Coming": row.get("NO. OF DAYS COMING", ""),
-        "Amount": row.get("AMOUNT", "")
+        "Amount": row.get("AMOUNT", ""),
         "Payment Mode": row.get("PAYMENT MODE", "")
     }
 
@@ -74,5 +74,6 @@ def month_data(month_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 

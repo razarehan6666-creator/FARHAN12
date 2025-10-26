@@ -3,42 +3,39 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Replace with your published Google Sheets CSV link
+# Google Sheets CSV link
 EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/pub?output=csv"
 
-# Columns we expect (all uppercase normalization will be applied)
+# Expected columns in sheet
 EXPECTED_COLUMNS = [
     "MONTH",
     "PAID",
     "NO. OF DAYS IN MONTH",
     "NO. OF DAYS ABSENT",
     "NO. OF DAYS COMING",
-    "AMOUNT",
-    "PAYMENT MODE"   # new column added
+    "LITRE PER DAY",
+    "PAYMENT MODE"
 ]
 
+# Fixed rate per litre
+RATE_PER_LITRE = 50
+
+
 def get_month_data(month_name):
-    """
-    Fetch CSV from Google Sheets, normalize headers, find row for month_name,
-    and return a dictionary including PAYMENT MODE.
-    """
+    """Fetch CSV, normalize, and return month data with calculated amount."""
     try:
         df = pd.read_csv(EXCEL_URL)
     except Exception as e:
         return {"error": f"Cannot fetch Google Sheet: {e}"}
 
-    # Normalize column names: strip whitespace and uppercase them
     df.columns = df.columns.str.strip().str.upper()
 
-    # Ensure dataframe has expected columns (not required, but helpful to warn)
+    # Check for missing columns
     missing = [c for c in EXPECTED_COLUMNS if c not in df.columns]
     if missing:
-        # Not fatal: we will still try to return available fields, but inform user
-        # Note: In production you might want to log this instead.
-        return {"error": f"Google Sheet missing expected columns: {', '.join(missing)}"}
+        return {"error": f"Google Sheet missing columns: {', '.join(missing)}"}
 
-    # Filter rows for the requested month (case-insensitive, trimmed)
-    # Some rows might have NaN in MONTH - skip them safely
+    # Filter by month (case insensitive)
     mask = df['MONTH'].astype(str).str.strip().str.upper() == month_name.strip().upper()
     month_rows = df[mask]
 
@@ -47,33 +44,35 @@ def get_month_data(month_name):
 
     row = month_rows.iloc[0]
 
-    # Use Series.get to provide sensible defaults if some cell is empty
+    # Convert to numbers safely
+    days_coming = pd.to_numeric(row.get("NO. OF DAYS COMING", 0), errors="coerce") or 0
+    litre_per_day = pd.to_numeric(row.get("LITRE PER DAY", 0), errors="coerce") or 0
+
+    # Calculate the amount
+    calculated_amount = days_coming * litre_per_day * RATE_PER_LITRE
+
     return {
         "Month": row.get("MONTH", ""),
         "Paid": row.get("PAID", ""),
         "Days in Month": row.get("NO. OF DAYS IN MONTH", ""),
         "Days Absent": row.get("NO. OF DAYS ABSENT", ""),
-        "Days Coming": row.get("NO. OF DAYS COMING", ""),
-        "Amount": row.get("AMOUNT", ""),
-        "Payment Mode": row.get("PAYMENT MODE", "")   # new field returned
+        "Days Coming": int(days_coming),
+        "Litre Per Day": float(litre_per_day),
+        "Amount": round(calculated_amount, 2),  # ✅ show only final number
+        "Payment Mode": row.get("PAYMENT MODE", "")
     }
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/month/<month_name>")
 def month_data(month_name):
     return jsonify(get_month_data(month_name))
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-
-
-
-
-
-
 

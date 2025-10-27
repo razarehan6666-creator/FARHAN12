@@ -5,7 +5,7 @@ import math
 app = Flask(__name__)
 
 # 🔗 Replace this link with your own Google Sheets CSV (Published link)
-EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugS1umqSfK/pub?output=csv"
+EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/pub?output=csv"
 
 def load_data():
     df = pd.read_csv(EXCEL_URL)
@@ -52,4 +52,5 @@ def get_month_data(month):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 

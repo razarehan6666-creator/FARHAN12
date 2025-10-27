@@ -8,67 +8,54 @@
             --bg: linear-gradient(135deg, #f8b500, #fceabb);
             --text: #2c3e50;
             --card-bg: white;
-            --button-bg: linear-gradient(135deg, #3498db, #1abc9c);
         }
-
         body.dark {
-            --bg: linear-gradient(135deg, #1e1e1e, #2c3e50);
-            --text: #f1f1f1;
-            --card-bg: #2b2b2b;
-            --button-bg: linear-gradient(135deg, #8e44ad, #3498db);
+            --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --text: #ecf0f1;
+            --card-bg: #1e272e;
         }
 
-        /* ====== Overall Page Style ====== */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
             margin: 0;
             background: var(--bg);
-            color: var(--text);
             min-height: 100vh;
             padding: 30px;
-            transition: background 0.4s, color 0.4s;
+            color: var(--text);
+            transition: background 0.5s, color 0.5s;
         }
 
         h1 {
-            font-size: 2.2em;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px #00000033;
+            font-size: 2.3em;
+            margin-bottom: 25px;
         }
 
-        /* ====== Top Buttons ====== */
-        .top-controls {
-            margin-bottom: 25px;
+        #buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
         }
 
         button {
             padding: 12px 20px;
             border-radius: 10px;
             border: none;
-            font-size: 1em;
             cursor: pointer;
-            background: var(--button-bg);
+            background: linear-gradient(135deg, #3498db, #1abc9c);
             color: white;
             font-weight: bold;
-            transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, background 0.3s ease;
         }
 
         button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transform: scale(1.08);
+            background: linear-gradient(135deg, #16a085, #2980b9);
         }
 
-        /* ====== Month Buttons ====== */
-        #buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
-
-        /* ====== Output Card ====== */
         #output {
             background: var(--card-bg);
             max-width: 420px;
@@ -88,42 +75,34 @@
             padding: 10px 0;
             border-radius: 10px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
-        .field {
-            margin: 8px 0;
-        }
-
-        /* ====== Fade-in Animation ====== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #output.show {
-            animation: fadeIn 0.6s ease forwards;
-        }
-
-        /* ====== Footer ====== */
         footer {
             margin-top: 50px;
             font-weight: bold;
-            opacity: 0.85;
+            opacity: 0.8;
         }
 
-        .credit {
-            font-size: 14px;
-            margin-top: 6px;
-            opacity: 0.7;
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #2ecc71;
         }
     </style>
 </head>
 <body>
-    <div class="top-controls">
-        <button onclick="toggleTheme()">🌗 Toggle Theme</button>
-        <button onclick="getTotal()">💰 Total Milk Bill</button>
-    </div>
+    <button class="toggle-btn" onclick="toggleTheme()">🌙 Night / ☀️ Day</button>
 
     <h1>🥛 Milk Data Month-wise</h1>
 
@@ -147,50 +126,41 @@
     </footer>
 
     <script>
-        // ========== Fetch Data for Month ==========
-        function getData(month) {
-            fetch(`/month/${month}`)
-                .then(res => res.json())
-                .then(data => {
-                    const out = document.getElementById("output");
-                    if (data.error) {
-                        out.innerHTML = `<b style='color:red;'>${data.error}</b>`;
-                        return;
-                    }
-                    out.innerHTML = `
-                        <h2>${data.Month}</h2>
-                        <div class="field"><b>Paid:</b> ${data.Paid}</div>
-                        <div class="field"><b>No. of Days in Month:</b> ${data["Days in Month"]}</div>
-                        <div class="field"><b>No. of Days Coming:</b> ${data["Days Coming"]}</div>
-                        <div class="field"><b>No. of Days Absent (Auto):</b> ${data["Days Absent"]}</div>
-                        <div class="field"><b>Amount (Auto ₹50/day):</b> ${data.Amount}</div>
-                        <div class="field"><b>Payment Mode:</b> ${data["Payment Mode"]}</div>
-                    `;
-                    out.classList.add("show");
-                });
-        }
-
-        // ========== Fetch Total Milk Bill ==========
-        function getTotal() {
-            fetch('/total')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        alert("Error: " + data.error);
-                    } else {
-                        alert(`💰 Total Milk Bill: ${data["Total Milk Bill"]}`);
-                    }
-                });
-        }
-
-        // ========== Theme Toggle + Memory ==========
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') document.body.classList.add('dark');
+        // 🌗 Theme Toggle with Memory
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") document.body.classList.add("dark");
 
         function toggleTheme() {
-            document.body.classList.toggle('dark');
-            const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
-            localStorage.setItem('theme', theme);
+            document.body.classList.toggle("dark");
+            localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+        }
+
+        // ⚡ Fast Data Fetch
+        async function getData(month) {
+            const out = document.getElementById("output");
+            out.innerHTML = `<h2>${month}</h2><div>Loading...</div>`;
+
+            try {
+                const res = await fetch(`/month/${month}`, { cache: "no-store" });
+                const data = await res.json();
+
+                if (data.error) {
+                    out.innerHTML = `<b style='color:red;'>${data.error}</b>`;
+                    return;
+                }
+
+                out.innerHTML = `
+                    <h2>${data.Month}</h2>
+                    <div><b>Paid:</b> ${data.Paid}</div>
+                    <div><b>No. of Days in Month:</b> ${data["Days in Month"]}</div>
+                    <div><b>No. of Days Coming:</b> ${data["Days Coming"]}</div>
+                    <div><b>No. of Days Absent:</b> ${data["Days Absent"]}</div>
+                    <div><b>Amount (₹50/day):</b> ₹${data.Amount}</div>
+                    <div><b>Payment Mode:</b> ${data["Payment Mode"]}</div>
+                `;
+            } catch (err) {
+                out.innerHTML = `<b style='color:red;'>Error loading data.</b>`;
+            }
         }
     </script>
 </body>

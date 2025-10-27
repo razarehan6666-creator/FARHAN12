@@ -4,21 +4,59 @@
     <meta charset="UTF-8">
     <title>Milk Data Viewer</title>
     <style>
+        :root {
+            --bg: linear-gradient(135deg, #f8b500, #fceabb);
+            --text: #2c3e50;
+            --card-bg: white;
+            --button-bg: linear-gradient(135deg, #3498db, #1abc9c);
+        }
+
+        body.dark {
+            --bg: linear-gradient(135deg, #1e1e1e, #2c3e50);
+            --text: #f1f1f1;
+            --card-bg: #2b2b2b;
+            --button-bg: linear-gradient(135deg, #8e44ad, #3498db);
+        }
+
         /* ====== Overall Page Style ====== */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
             margin: 0;
-            background: linear-gradient(135deg, #f8b500, #fceabb);
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             padding: 30px;
+            transition: background 0.4s, color 0.4s;
         }
 
         h1 {
-            color: #2c3e50;
             font-size: 2.2em;
             margin-bottom: 30px;
-            text-shadow: 2px 2px #ffffff66;
+            text-shadow: 2px 2px #00000033;
+        }
+
+        /* ====== Top Buttons ====== */
+        .top-controls {
+            margin-bottom: 25px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            background: var(--button-bg);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
         /* ====== Month Buttons ====== */
@@ -30,34 +68,15 @@
             margin-bottom: 40px;
         }
 
-        button {
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: none;
-            font-size: 1em;
-            cursor: pointer;
-            background: linear-gradient(135deg, #3498db, #1abc9c);
-            color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        button:hover {
-            transform: scale(1.1);
-            background: linear-gradient(135deg, #16a085, #2980b9);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-        }
-
         /* ====== Output Card ====== */
         #output {
-            background: white;
+            background: var(--card-bg);
             max-width: 420px;
             margin: 0 auto;
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            color: #333;
+            color: var(--text);
             font-size: 17px;
             line-height: 1.6;
             transition: all 0.4s ease;
@@ -89,21 +108,23 @@
         /* ====== Footer ====== */
         footer {
             margin-top: 50px;
-            color: #2c3e50;
             font-weight: bold;
             opacity: 0.85;
         }
 
         .credit {
             font-size: 14px;
-            color: #34495e;
             margin-top: 6px;
             opacity: 0.7;
         }
-
     </style>
 </head>
 <body>
+    <div class="top-controls">
+        <button onclick="toggleTheme()">🌗 Toggle Theme</button>
+        <button onclick="getTotal()">💰 Total Milk Bill</button>
+    </div>
+
     <h1>🥛 Milk Data Month-wise</h1>
 
     <div id="buttons">
@@ -126,6 +147,7 @@
     </footer>
 
     <script>
+        // ========== Fetch Data for Month ==========
         function getData(month) {
             fetch(`/month/${month}`)
                 .then(res => res.json())
@@ -139,15 +161,37 @@
                         <h2>${data.Month}</h2>
                         <div class="field"><b>Paid:</b> ${data.Paid}</div>
                         <div class="field"><b>No. of Days in Month:</b> ${data["Days in Month"]}</div>
-                        <div class="field"><b>No. of Days Absent:</b> ${data["Days Absent"]}</div>
                         <div class="field"><b>No. of Days Coming:</b> ${data["Days Coming"]}</div>
-                        <div class="field"><b>Amount:</b> ₹${data.Amount}</div>
+                        <div class="field"><b>No. of Days Absent (Auto):</b> ${data["Days Absent"]}</div>
+                        <div class="field"><b>Amount (Auto ₹50/day):</b> ${data.Amount}</div>
                         <div class="field"><b>Payment Mode:</b> ${data["Payment Mode"]}</div>
                     `;
                     out.classList.add("show");
                 });
         }
+
+        // ========== Fetch Total Milk Bill ==========
+        function getTotal() {
+            fetch('/total')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error: " + data.error);
+                    } else {
+                        alert(`💰 Total Milk Bill: ${data["Total Milk Bill"]}`);
+                    }
+                });
+        }
+
+        // ========== Theme Toggle + Memory ==========
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') document.body.classList.add('dark');
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        }
     </script>
 </body>
 </html>
-

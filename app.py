@@ -1,78 +1,54 @@
 from flask import Flask, render_template, jsonify
 import pandas as pd
+import math
 
 app = Flask(__name__)
 
-# Google Sheets CSV link
-EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugCke-dRD_/pub?output=csv"
+# 🔗 Replace this link with your own Google Sheets CSV (Published link)
+EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPIR5j2TyzJAorJsGX9reIhOXQKrTfyDbbv2GreXPDf2nWcBCddhoedW93yEaK1S93imugS1umqSfK/pub?output=csv"
 
-# Expected columns
-EXPECTED_COLUMNS = [
-    "MONTH",
-    "PAID",
-    "NO. OF DAYS IN MONTH",
-    "NO. OF DAYS ABSENT",
-    "NO. OF DAYS COMING",
-    "PAYMENT MODE"
-]
+def load_data():
+    df = pd.read_csv(EXCEL_URL)
+    df.fillna("NO DATA", inplace=True)
+    return df
 
-# Fixed rate per day
-RATE_PER_DAY = 50
-
-
-def get_month_data(month_name):
-    """Fetch CSV and calculate amount = Days Coming × ₹50"""
-    try:
-        df = pd.read_csv(EXCEL_URL)
-    except Exception as e:
-        return {"error": f"Cannot fetch Google Sheet: {e}"}
-
-    # Normalize column names
-    df.columns = df.columns.str.strip().str.upper()
-
-    # Check for missing columns
-    missing = [c for c in EXPECTED_COLUMNS if c not in df.columns]
-    if missing:
-        return {"error": f"Google Sheet missing expected columns: {', '.join(missing)}"}
-
-    # Find row for the requested month
-    mask = df['MONTH'].astype(str).str.strip().str.upper() == month_name.strip().upper()
-    month_rows = df[mask]
-
-    if month_rows.empty:
-        return {"error": "No data found for this month"}
-
-    row = month_rows.iloc[0]
-
-    # Calculate amount safely
-    try:
-        days_coming = float(row.get("NO. OF DAYS COMING", 0))
-    except (TypeError, ValueError):
-        days_coming = 0
-
-    calculated_amount = days_coming * RATE_PER_DAY
-
-    return {
-        "Month": row.get("MONTH", ""),
-        "Paid": row.get("PAID", ""),
-        "Days in Month": row.get("NO. OF DAYS IN MONTH", ""),
-        "Days Absent": row.get("NO. OF DAYS ABSENT", ""),
-        "Days Coming": days_coming,
-        "Amount": f"₹{calculated_amount:.2f}",   # show as ₹1234.00
-        "Payment Mode": row.get("PAYMENT MODE", "")
-    }
-
-
-@app.route("/")
-def index():
+@app.route('/')
+def home():
     return render_template("index.html")
 
+@app.route('/month/<month>')
+def get_month_data(month):
+    try:
+        df = load_data()
+        row = df.loc[df['Month'].str.lower() == month.lower()]
 
-@app.route("/month/<month_name>")
-def month_data(month_name):
-    return jsonify(get_month_data(month_name))
+        if row.empty:
+            return jsonify({"error": f"No data found for {month}"})
 
+        row = row.iloc[0].to_dict()
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+        # Extract core values safely
+        days_in_month = int(row.get("Days in Month", 0))
+        days_coming = int(row.get("Days Coming", 0))
 
+        # ✅ Auto calculations
+        days_absent = days_in_month - days_coming
+        amount = days_coming * 50  # ₹50 per day fixed rate
+
+        result = {
+            "Month": month.upper(),
+            "Paid": row.get("Paid", "NO DATA"),
+            "Days in Month": days_in_month,
+            "Days Coming": days_coming,
+            "Days Absent": days_absent,
+            "Amount": f"{amount:.2f}",
+            "Payment Mode": row.get("Payment Mode", "NO DATA")
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"Error loading data: {str(e)}"})
+
+if __name__ == '__main__':
+    app.run(debug=True)

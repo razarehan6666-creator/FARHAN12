@@ -1,167 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Milk Data Viewer</title>
-    <style>
-        :root {
-            --bg: linear-gradient(135deg, #f8b500, #fceabb);
-            --text: #2c3e50;
-            --card-bg: white;
-        }
-        body.dark {
-            --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --text: #ecf0f1;
-            --card-bg: #1e272e;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            margin: 0;
-            background: var(--bg);
-            min-height: 100vh;
-            padding: 30px;
-            color: var(--text);
-            transition: background 0.5s, color 0.5s;
-        }
-
-        h1 {
-            font-size: 2.3em;
-            margin-bottom: 25px;
-        }
-
-        #buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            background: linear-gradient(135deg, #3498db, #1abc9c);
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, background 0.3s ease;
-        }
-
-        button:hover {
-            transform: scale(1.08);
-            background: linear-gradient(135deg, #16a085, #2980b9);
-        }
-
-        #output {
-            background: var(--card-bg);
-            max-width: 420px;
-            margin: 0 auto;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            color: var(--text);
-            font-size: 17px;
-            line-height: 1.6;
-            transition: all 0.4s ease;
-        }
-
-        #output h2 {
-            background: linear-gradient(135deg, #e67e22, #f1c40f);
-            color: white;
-            padding: 10px 0;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        footer {
-            margin-top: 50px;
-            font-weight: bold;
-            opacity: 0.8;
-        }
-
-        .toggle-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #34495e;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle-btn:hover {
-            background: #2ecc71;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milk Tracker</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333;
+      --card-bg: #f8f8f8;
+      --button-bg: #007bff;
+      --button-text: #fff;
+    }
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --card-bg: #1e1e1e;
+      --button-bg: #ffa500;
+      --button-text: #000;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.4s, color 0.4s;
+    }
+    header {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-toggle {
+      background-color: var(--button-text);
+      color: var(--button-bg);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-toggle:hover {
+      transform: scale(1.1);
+    }
+    .month-buttons {
+      margin: 25px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      max-width: 600px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    .result {
+      background-color: var(--card-bg);
+      margin: 20px auto;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 400px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: left;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <button class="toggle-btn" onclick="toggleTheme()">🌙 Night / ☀️ Day</button>
+  <header>
+    <span>🥛 Milk Tracker Dashboard</span>
+    <button class="btn-toggle" onclick="toggleMode()">🌞 / 🌙</button>
+  </header>
 
-    <h1>🥛 Milk Data Month-wise</h1>
+  <div class="month-buttons">
+    <button onclick="loadMonth('JANUARY')">January</button>
+    <button onclick="loadMonth('FEBRUARY')">February</button>
+    <button onclick="loadMonth('MARCH')">March</button>
+    <button onclick="loadMonth('APRIL')">April</button>
+    <button onclick="loadMonth('MAY')">May</button>
+    <button onclick="loadMonth('JUNE')">June</button>
+    <button onclick="loadMonth('JULY')">July</button>
+    <button onclick="loadMonth('AUGUST')">August</button>
+    <button onclick="loadMonth('SEPTEMBER')">September</button>
+    <button onclick="loadMonth('OCTOBER')">October</button>
+    <button onclick="loadMonth('NOVEMBER')">November</button>
+    <button onclick="loadMonth('DECEMBER')">December</button>
+  </div>
 
-    <div id="buttons">
-        <script>
-            const months = [
-                "January","February","March","April","May","June",
-                "July","August","September","October","November","December"
-            ];
-            months.forEach(m => {
-                document.write(`<button onclick="getData('${m}')">${m}</button>`);
-            });
-        </script>
-    </div>
+  <div id="result" class="result">
+    <strong>Select a month to view details.</strong>
+  </div>
 
-    <div id="output">Click a month to view milk data.</div>
+  <script>
+    // 🌙 Remembered Day/Night Mode
+    function toggleMode() {
+      const isDark = document.body.classList.toggle('dark');
+      localStorage.setItem('mode', isDark ? 'dark' : 'light');
+    }
 
-    <footer>
-        Powered by Flask & Google Sheets ✨
-        <div class="credit">Made by Farhan</div>
-    </footer>
+    window.onload = () => {
+      if (localStorage.getItem('mode') === 'dark') {
+        document.body.classList.add('dark');
+      }
+    };
 
-    <script>
-        // 🌗 Theme Toggle with Memory
-        const theme = localStorage.getItem("theme");
-        if (theme === "dark") document.body.classList.add("dark");
-
-        function toggleTheme() {
-            document.body.classList.toggle("dark");
-            localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+    // ⚡ Fast fetch & display
+    async function loadMonth(month) {
+      const resDiv = document.getElementById("result");
+      resDiv.innerHTML = `<em>Loading ${month}...</em>`;
+      try {
+        const res = await fetch(`/month/${month}`);
+        const data = await res.json();
+        if (data.error) {
+          resDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
+          return;
         }
-
-        // ⚡ Fast Data Fetch
-        async function getData(month) {
-            const out = document.getElementById("output");
-            out.innerHTML = `<h2>${month}</h2><div>Loading...</div>`;
-
-            try {
-                const res = await fetch(`/month/${month}`, { cache: "no-store" });
-                const data = await res.json();
-
-                if (data.error) {
-                    out.innerHTML = `<b style='color:red;'>${data.error}</b>`;
-                    return;
-                }
-
-                out.innerHTML = `
-                    <h2>${data.Month}</h2>
-                    <div><b>Paid:</b> ${data.Paid}</div>
-                    <div><b>No. of Days in Month:</b> ${data["Days in Month"]}</div>
-                    <div><b>No. of Days Coming:</b> ${data["Days Coming"]}</div>
-                    <div><b>No. of Days Absent:</b> ${data["Days Absent"]}</div>
-                    <div><b>Amount (₹50/day):</b> ₹${data.Amount}</div>
-                    <div><b>Payment Mode:</b> ${data["Payment Mode"]}</div>
-                `;
-            } catch (err) {
-                out.innerHTML = `<b style='color:red;'>Error loading data.</b>`;
-            }
-        }
-    </script>
+        resDiv.innerHTML = `
+          <h3>${data.month}</h3>
+          <p><b>Days in Month:</b> ${data.days_in_month}</p>
+          <p><b>Days Coming:</b> ${data.days_coming}</p>
+          <p><b>Days Absent:</b> ${data.days_absent}</p>
+          <p><b>Milk Bill:</b> ₹${data.amount}</p>
+          <p><b>Paid:</b> ${data.paid}</p>
+          <p><b>Payment Mode:</b> ${data.payment_mode}</p>
+        `;
+      } catch (err) {
+        resDiv.innerHTML = `<span style="color:red">Error fetching data: ${err}</span>`;
+      }
+    }
+  </script>
 </body>
 </html>
